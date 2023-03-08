@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello HomeController!{% endblock %}
+{% block title %}WeatherApp{% endblock %}
 
 {% block body %}
 <style>
@@ -30,17 +30,17 @@
     {% else %}
       <div id="buttonsLog">
       Welcome {{username}}
-      <a id="signUp">Log out</a>
+      <a id="signUp"  href={{ path('app_logout') }}>Log out</a>
       </div>
     {% endif %}
   </div>
   {# LISTE DES VILLES #}
   <div id="cityList" >
       {% if datasCities|length > 0 %}
-        {% for city in datasCities %}
+        {% for key, city in datasCities %}
           <div class="cityContainer">
             {# NOM #}
-            <p class="name">{{city.name}}</p>
+            <p class="name">{{key}}</p>
             {# DESCRIPTION #}
             <p class="description">{{city.weather.0.description}}</p>     
             {# IMAGE #}
@@ -52,7 +52,7 @@
 					      <p class="tempMax">{{city.main.temp_max}} °C</p>
 				    </div>  
             {# DELETE #}
-            <a class="deleteCity" href={{ path('remove_city',{'city': city.name}) }}>Delete</a>
+            <a class="deleteCity" href={{ path('remove_city',{'city': key}) }}>Delete</a>
         </div>
         {% endfor %}
         {% else %}

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -34,6 +36,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     private ?string $pseudo = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Cities::class)]
+    private Collection $cities;
+
+    #[ORM\ManyToMany(targetEntity: Cities::class, inversedBy: 'users')]
+    private Collection $favorite;
+
+    public function __construct()
+    {
+        $this->cities = new ArrayCollection();
+        $this->favorite = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -139,6 +153,60 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPseudo(string $pseudo): self
     {
         $this->pseudo = $pseudo;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Cities>
+     */
+    public function getCities(): Collection
+    {
+        return $this->cities;
+    }
+
+    public function addCity(Cities $city): self
+    {
+        if (!$this->cities->contains($city)) {
+            $this->cities->add($city);
+            $city->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCity(Cities $city): self
+    {
+        if ($this->cities->removeElement($city)) {
+            // set the owning side to null (unless already changed)
+            if ($city->getUser() === $this) {
+                $city->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Cities>
+     */
+    public function getFavorite(): Collection
+    {
+        return $this->favorite;
+    }
+
+    public function addFavorite(Cities $favorite): self
+    {
+        if (!$this->favorite->contains($favorite)) {
+            $this->favorite->add($favorite);
+        }
+
+        return $this;
+    }
+
+    public function removeFavorite(Cities $favorite): self
+    {
+        $this->favorite->removeElement($favorite);
 
         return $this;
     }

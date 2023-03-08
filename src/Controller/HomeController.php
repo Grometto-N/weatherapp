@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Services\CallApiExtService;
+use App\Services\DataCitiesService;
 use App\Entity\Cities;
+use App\Entity\User;
 use mysqli;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,29 +16,39 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\SearchType;
 use Doctrine\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManagerInterface;
 
 class HomeController extends AbstractController
 {
 
     #[Route('/', name: 'homepage')]
-    public function index(CallApiExtService $callApiService, Request $request, SessionInterface $session): Response
-    {
-        // recupération des infos dans la session et ajout des données en base de données
-        $datasCities = $session->get('datasCities',[]);
-        dump($datasCities);
+    public function index(CallApiExtService $callApiService, Request $request, SessionInterface $session, EntityManagerInterface $em): Response
+    {   
+        // récupération utilisateur
+        $username = null;
+        $user =null;
+        if($this->getUser() != null){
+            $username = $this->getUser()->getPseudo();
+            $user = $em->getRepository(User::class)->findOneBy(
+                ['email' => $this->getUser()->getEmail()],
+            );
+        }
 
-        if(empty($datasCities)){
-            $repository = $this->getDoctrine()->getRepository(Cities::class);
-            $cities = $repository->findAll();
-            $datasToAdd = array();
+        // recupération des infos depuis la BDD et ajout au tableau de la session
+        $datasCities = $session->get('datasCities',[]);
+        if($user != null){
+            $cities = $user->getFavorite();
+            
+            // $cities = $em->getRepository(Cities::class)->findAll();
             if($cities !== null){
                 foreach($cities as $oneCity){
-                    $datasToAdd[$oneCity->getCityName()]= $callApiService->getData($oneCity->getCityName());
+                    $datasCities[$oneCity->getCityName()]= $callApiService->getData($oneCity->getCityName());
                 }
             }
             
-            $session->set('datasCities', $datasToAdd);
+            $session->set('datasCities', $datasCities);
         }
+
 
         // utilisation d'un formulaire pour le input
         $cityChoice = new Cities();
@@ -45,21 +57,37 @@ class HomeController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $dataCity = $callApiService->getData($form->getData()->getCityName());
+            $newCity = ucfirst($form->getData()->getCityName());
+            $dataCity = $callApiService->getData($newCity);
 
-            //  vérification que l'on a bien une ville
+            //  vérification que l'on a bien une ville 
             if(count($dataCity) >0){
-                // ajout en BDD
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($form->getData());
-                $em->flush();
                 // ajout au tableau (via la session)
                 $datasCities = $session->get('datasCities',[]);
-                $datasCities[$form->getData()->getCityName()] = $dataCity;
+                $datasCities[$newCity] = $dataCity;
                 $session->set('datasCities', $datasCities);
-            }
-            $datasCities = $session->get('datasCities',[]);
 
+                // ajout en BDD si on a un user
+                if($user != null){
+                    // recherche de la ville et du user
+                    $cityToAdd = $em->getRepository(Cities::class)->findOneBy(
+                        ['CityName' => $newCity],
+                    );
+                    
+                    
+                    // gestion de la BDD pour la ville
+                    if($cityToAdd === null){
+                        // on créer la ville en BDD
+                        $cityToAdd = new Cities();
+                        $cityToAdd->setCityName( $newCity);
+                        $em->persist($cityToAdd);
+                    }
+
+                    // ajout à l'utilisateur
+                    $user->addFavorite($cityToAdd);
+                    $em->flush();
+                }
+            }
 
             // remise à zéro du formulaire
             unset($form);
@@ -67,12 +95,9 @@ class HomeController extends AbstractController
             $form = $this->createForm(SearchType::class, $cityChoice);
         }
 
-        $username = null;
-        if($this->getUser() != null){
-            $username = $this->getUser()->getPseudo();
-        }
+        
 
-
+        $datasCities = $session->get('datasCities',[]);
         // transmission des données à la vue
         return $this->render('home/index.html.twig', [
             'controller_name' => 'HomeController',
@@ -84,15 +109,28 @@ class HomeController extends AbstractController
 
 
     #[Route('/remove/{city}', name: 'remove_city')]
-    public function remove(String $city, CallApiExtService $callApiService, Request $request,SessionInterface $session)
+    public function remove(String $city, SessionInterface $session, EntityManagerInterface $em)
     {   
         // modifications des données dans la session
         $datasCities = $session->get('datasCities',[]);
         if(!empty($datasCities[$city])){
             unset($datasCities[$city]);
         }
+        
+        // modification dans la BDD si on a un user
+        if($this->getUser()  != null){
+            $user = $em->getRepository(User::class)->findOneBy(
+                ['email' => $this->getUser()->getEmail()],
+            );
+            $cityToRemove = $em->getRepository(Cities::class)->findOneBy(
+                ['CityName' => $city],
+            );
+            $user->removeFavorite($cityToRemove);
+            $em->flush();
+        }
 
         $session->set('datasCities', $datasCities);
+        // $dataCitiesServcice->remove($city);
 
         return $this->redirectToRoute("homepage");
     }
