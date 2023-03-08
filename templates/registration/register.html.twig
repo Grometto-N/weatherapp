@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/form.css') }}" >
+{% endblock %}
+
+{% block body %}
+<div class="containerLog">
+    <h1 id="welcomeTitle">Welcome to WeatherApp ! </h1>
+    <h1 id="title">Register</h1>
+
+    {{ form_start(registrationForm,{'attr':{'class' : "formContainer"}}) }}
+    <div id="fieldsContainer">
+        {# PSEUDO #}
+        <div class="field">
+        {{ form_label(registrationForm.pseudo) }}
+        {{ form_widget(registrationForm.pseudo,{'attr':{'class' : "inputField"}}) }}
+        {{ form_errors(registrationForm.pseudo) }}
+        {# {{ form_row(registrationForm.pseudo) }} #}
+        </div>
+        {# EMAIL #}
+        <div class="field">
+        {{ form_label(registrationForm.email) }}
+        {{ form_widget(registrationForm.email,{'attr':{'class' : "inputField"}}) }}
+        {{ form_errors(registrationForm.email) }}
+        {# {{ form_row(registrationForm.email) }} #}
+        </div>
+        {# PASSWORD #}
+        <div class="field">
+        {{ form_label(registrationForm.plainPassword, "Password") }}
+        {{ form_widget(registrationForm.plainPassword,{'attr':{'class' : "inputField"}}) }}
+        {{ form_errors(registrationForm.plainPassword) }}
+        {# {{ form_row(registrationForm.plainPassword, {
+            label: 'Password'
+        }) }} #}
+        </div>
+        {{ form_rest(registrationForm) }}
+        {# BOUTON #}
+        <button type="submit" class="btnLog">Register</button>
+    </div>
+    {{ form_end(registrationForm) }}
+    <div id="message">
+    Already have an account? <a href={{ path('app_login') }} id="redirect">Sign in</a>
+    </div>
+</div>
+{% endblock %}

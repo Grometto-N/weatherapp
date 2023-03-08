@@ -1,0 +1,73 @@
+.containerLog{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.formContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width : 20vw;
+}
+
+#title{
+    font-weight: 100;
+}
+
+#welcomeTitle{
+    font-weight: 500;
+}
+
+#fieldsContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    border: solid 1px black;
+    border-radius: 5px;
+    padding: 10px;
+    width: 18vw;
+    background-color: rgba(194, 226, 231, 1);
+}
+
+.field{
+    display: flex;
+    flex-direction: column;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.inputField{
+    margin-top: 2px;
+	border:solid 1px #225A86; 
+	border-radius: 5px;
+    height: 30px;
+}
+
+.btnLog{
+    background-color:#225A86 ;
+    border: 0px;
+    color:white;
+    height: 35px;
+    margin: 8px;
+    border-radius: 5px;
+}
+
+.btnLog:hover{
+    background-color:rgba(40, 107, 159, 1)  ;
+}
+
+#message{
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+#redirect{
+    color : #225A86;
+    text-decoration:none;
+}

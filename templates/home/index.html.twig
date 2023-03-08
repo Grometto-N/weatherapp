@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello HomeController!{% endblock %}
+
+{% block body %}
+<style>
+    {# .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; } #}
+</style>
+{# HEADER #}
+<div id="header">
+      <img id="logo" src="images/logo.svg" />
+    <div >
+      {{ form_start(formSearch, {'attr':{'class' : 'headerDiv'}})}}
+          {{ form_widget(formSearch.cityName, { 'id': 'cityNameInput' , 'attr':{'placeholder': "Add new city"}}) }}
+        <button id="addCity"><img id="glass" src="images/glass.png" /></button> 
+      {{ form_end(formSearch) }}
+      
+    </div>
+    {# AFFICHAGE CONDITIONNEL : username ou bouton de connexion #}
+    {% if username == null %}
+      <div id="buttonsLog">
+          <a id="signIn" href={{ path('app_login') }}>
+            Sign in
+          </a> 
+          <a id="signUp" href={{ path('app_register') }}>
+            Sign Up
+          </a>
+      </div>
+    {% else %}
+      <div id="buttonsLog">
+      Welcome {{username}}
+      <a id="signUp">Log out</a>
+      </div>
+    {% endif %}
+  </div>
+  {# LISTE DES VILLES #}
+  <div id="cityList" >
+      {% if datasCities|length > 0 %}
+        {% for city in datasCities %}
+          <div class="cityContainer">
+            {# NOM #}
+            <p class="name">{{city.name}}</p>
+            {# DESCRIPTION #}
+            <p class="description">{{city.weather.0.description}}</p>     
+            {# IMAGE #}
+            <img class="weatherIcon" src="{{ asset('/images/'~city.weather.0.main~'.png') }}" alt="ACME logo">
+            {# TEMPERATURES #}
+            <div class="temperature">
+					      <p class="tempMin">{{city.main.temp_min}} °C</p>
+					      <span>-</span>
+					      <p class="tempMax">{{city.main.temp_max}} °C</p>
+				    </div>  
+            {# DELETE #}
+            <a class="deleteCity" href={{ path('remove_city',{'city': city.name}) }}>Delete</a>
+        </div>
+        {% endfor %}
+        {% else %}
+          <p> No city selected </p>
+          <p> Create an account to save your favorite cities </p>
+        {% endif %}
+      
+  </div> 
+
+{% endblock %}
