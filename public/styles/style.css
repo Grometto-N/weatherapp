@@ -183,5 +183,10 @@ button {
 	border: none;
 }
 
-
+#userless{
+	color:white;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
 

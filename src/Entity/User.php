@@ -31,21 +31,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $username = "Nico";
 
     #[ORM\Column(length: 255)]
     private ?string $pseudo = null;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Cities::class)]
-    private Collection $cities;
 
     #[ORM\ManyToMany(targetEntity: Cities::class, inversedBy: 'users')]
     private Collection $favorite;
 
     public function __construct()
     {
-        $this->cities = new ArrayCollection();
         $this->favorite = new ArrayCollection();
     }
 
@@ -138,12 +133,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function setUsername(string $username): self
-    {
-        $this->username = $this->email;
-
-        return $this;
-    }
 
     public function getPseudo(): ?string
     {
@@ -157,35 +146,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Cities>
-     */
-    public function getCities(): Collection
-    {
-        return $this->cities;
-    }
-
-    public function addCity(Cities $city): self
-    {
-        if (!$this->cities->contains($city)) {
-            $this->cities->add($city);
-            $city->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCity(Cities $city): self
-    {
-        if ($this->cities->removeElement($city)) {
-            // set the owning side to null (unless already changed)
-            if ($city->getUser() === $this) {
-                $city->setUser(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, Cities>

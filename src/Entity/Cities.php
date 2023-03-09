@@ -18,8 +18,6 @@ class Cities
     #[ORM\Column(length: 255)]
     private ?string $CityName = null;
 
-    #[ORM\ManyToOne(inversedBy: 'cities')]
-    private ?User $user = null;
 
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'favorite')]
     private Collection $users;
@@ -42,18 +40,6 @@ class Cities
     public function setCityName(string $CityName): self
     {
         $this->CityName = $CityName;
-
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
 
         return $this;
     }
