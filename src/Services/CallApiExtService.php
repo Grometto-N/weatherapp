@@ -24,7 +24,7 @@ class CallApiExtService
             );
             $datas = $response->toArray();
         } catch (\Exception $e) {
-            dump("Probleme api");
+            
         }
        
         //  return new JsonResponse($response->getContent(), $response->getStatusCode(), [], true);
