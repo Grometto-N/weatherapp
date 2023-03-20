@@ -6,16 +6,15 @@ use App\Services\CallApiExtService;
 use App\Services\DataCitiesService;
 use App\Entity\Cities;
 use App\Entity\User;
-use mysqli;
+use App\Form\SearchType;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-
 use Symfony\Component\HttpFoundation\Request;
-use App\Form\SearchType;
-use Doctrine\Persistence\ObjectManager;
+
+
 use Doctrine\ORM\EntityManagerInterface;
 
 class HomeController extends AbstractController
@@ -109,14 +108,15 @@ class HomeController extends AbstractController
 
 
     #[Route('/remove/{city}', name: 'remove_city')]
-    public function remove(String $city, SessionInterface $session, EntityManagerInterface $em)
+    public function remove(String $city,SessionInterface $session, DataCitiesService $datas,EntityManagerInterface $em)  
     {   
-        // modifications des données dans la session
+        // modifications des données dans la session )
+        // $datasCities->remove($city);
         $datasCities = $session->get('datasCities',[]);
         if(!empty($datasCities[$city])){
             unset($datasCities[$city]);
         }
-        
+
         // modification dans la BDD si on a un user
         if($this->getUser()  != null){
             $user = $em->getRepository(User::class)->findOneBy(
