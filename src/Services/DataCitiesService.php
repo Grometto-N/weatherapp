@@ -5,16 +5,20 @@ namespace App\Services;
 
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Security;
+
 use App\Entity\User;
+use App\Entity\Cities;
+use App\Services\CallApiExtService;
 
 use Doctrine\ORM\EntityManagerInterface;
 
+
+// gestion des données à afficher via la section
 
 class DataCitiesService
 {
 
     private SessionInterface $session;
-    // private Security $security;
     private EntityManagerInterface $em;
     private User $user;
     
@@ -25,24 +29,45 @@ class DataCitiesService
         $this->em = $em;
     }
 
-    // public function initializeDatas()
-    // {
-        // $datasCities = $this->$session->get('datasCities',[]);
-        // if(empty($datasCities)){
-        //     $repository = $this->getDoctrine()->getRepository(Cities::class);
-        //     $cities = $repository->findAll();
-        //     $datasToAdd = array();
-        //     if($cities !== null){
-        //         foreach($cities as $oneCity){
-        //             $datasToAdd[$oneCity->getCityName()]= $callApiService->getData($oneCity->getCityName());
-        //         }
-        //     }
-            
-        //     $session->set('datasCities', $datasToAdd);
-        //}
-    // }
+    // initialisation des données dans le tableau de session
+    public function initializeDatas(CallApiExtService $callApiService)
+    {
+        // récupération utilisateur
+        $userDB = null;
+        if($this->user != null){
+            $userDB = $this->em->getRepository(User::class)->findOneBy(
+                ['email' => $this->user->getEmail()],
+            );
+        }
 
-    public function remove(string $city) {
+        // recupération des infos depuis la BDD et ajout au tableau de la session
+        $datasCities = $this->session->get('datasCities',[]);
+        if($this->user != null){
+            $cities = $userDB->getFavorite();
+            
+            // $cities = $em->getRepository(Cities::class)->findAll();
+            if($cities !== null){
+                foreach($cities as $oneCity){
+                    $datasCities[$oneCity->getCityName()]= $callApiService->getData($oneCity->getCityName());
+                }
+            }
+            
+            $this->session->set('datasCities', $datasCities);
+        }
+    }
+
+    // ajout d'une ville dans le tableau en session
+    public function add(string $city, array $dataCity):void 
+    {
+        $datasCities = $this->session->get('datasCities',[]);
+        $datasCities[$city] = $dataCity;
+        $this->session->set('datasCities', $datasCities);
+    }
+
+
+    // suppression d'une ville dans la session
+    public function remove(string $city) : void
+    {
         
          // modifications des données dans la session
         $datasCities = $this->session->get('datasCities',[]);
