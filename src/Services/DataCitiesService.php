@@ -30,7 +30,7 @@ class DataCitiesService
     }
 
     // initialisation des données dans le tableau de session
-    public function initializeDatas(CallApiExtService $callApiService)
+    public function initializeDatas(CallApiExtService $callApiService):void
     {
         // récupération utilisateur
         $userDB = null;

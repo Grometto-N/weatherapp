@@ -72,7 +72,7 @@ class HomeController extends AbstractController
 
 
     #[Route('/remove/{city}', name: 'remove_city')]
-    public function remove(string $city, DataCitiesService $datasCities)  
+    public function remove(string $city, DataCitiesService $datasCities)
     {   
         // modifications des données dans la session 
         $datasCities->remove($city);
